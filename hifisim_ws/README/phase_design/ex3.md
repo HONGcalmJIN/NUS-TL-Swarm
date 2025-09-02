@@ -35,7 +35,7 @@
   - 仅用短名参数：`odometry_topic:=odom cloud_topic:=cloud odom_world:=odom`
 
 #### 最小可复现实验（按顺序逐终端）
-1) 清场
+0) 清场
 ```bash
 pkill -f goal_filter_offset.py || true
 pkill -f controller_adapter_fixed.py || true
@@ -45,6 +45,14 @@ pkill -f ego_planner_node || true
 pkill -f cloud_relay.py || true
 pkill -f pose_to_odom_adapter.py || true
 ```
+
+1) 启动unity和single Endpoint
+```Shell
+chmod +x /home/ctx/hifisim_ws/sh/run_unity_stack.sh
+/home/ctx/hifisim_ws/sh/run_unity_stack.sh
+```
+
+
 
 2) 起飞控制（pbtm）
 ```bash
