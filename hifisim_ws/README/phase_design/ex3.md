@@ -89,6 +89,11 @@ nohup python3 /home/ctx/hifisim_ws/cloud_relay.py \
   >/tmp/cloud_relay.log 2>&1 & echo $!
 ```
 
+- RViz观察点云
+ ```bash
+ros2 launch hifisim_task_ros2 view_mapping.launch.py | cat
+```
+
 4) 规划器（短名参数）
 ```bash
 nohup bash -lc 'ros2 launch ego_planner advanced_param.launch.py \
