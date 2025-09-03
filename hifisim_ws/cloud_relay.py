@@ -63,14 +63,13 @@ class CloudRelay(Node):
 	def cb(self, msg: PointCloud2):
 		if self.assume_world or not self.pose_topic:
 			msg.header.frame_id = 'world'
-		self.pub.publish(msg)
+			self.pub.publish(msg)
 			return
 		if not self.have_pose:
 			return
 		# Transform points to world and repack minimal XYZ fields; preserve stamp
 		try:
 			points = []
-			fmt = None
 			# Build struct format for reading XYZ float32
 			offset_map = {f.name: f.offset for f in msg.fields}
 			if not all(k in offset_map for k in ('x', 'y', 'z')):
