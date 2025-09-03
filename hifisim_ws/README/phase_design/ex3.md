@@ -55,13 +55,27 @@ chmod +x /home/ctx/hifisim_ws/sh/run_unity_stack.sh
 
 
 2) 起飞控制（pbtm）
-```bash
+```Shell
 nohup ros2 run pbtm_ros2 pbtm_ros2_node --ros-args -r __ns:=/agent001 -r __node:=pbtm_node \
   -p agent_id:=agent001 -p takeoff_height:=5.0 -p send_command_rate:=20.0 \
   -p timeout:=5.0 -p height_range:='[0.5, 20.0]' >/tmp/pbtm.log 2>&1 & echo $!
 sleep 1
-ros2 topic info -v /agent001/trajectory/points | cat   # 期望：Sub=1（pbtm_node）
+ros2 topic info -v /agent001/trajectory/points | cat   # Subscription count should now be 1 (pbtm_node)
 ```
+
+
+- 触发takeoff
+
+```Shell
+ros2 topic pub -1 /agent001/trajectory/points trajectory_msgs/msg/JointTrajectory \
+"{header: {stamp: {sec: 0, nanosec: 0}}, joint_names: ['agent001'], points: [{positions: [0.0, 0.0, 0.0], time_from_start: {sec: 1, nanosec: 0}}]}"
+```
+
+
+
+
+
+
 
 3) 适配（位姿/点云）
 ```bash
