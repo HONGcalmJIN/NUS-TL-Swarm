@@ -46,7 +46,7 @@
 **适配后话题抽样**
 
 ```bash
-ros2 topic echo --once      # 有 Odometry 样本
+ros2 topic echo --once  /drone_0_odom    # 有 Odometry 样本
 ros2 topic echo --once /drone_0_cloud    # 有 PointCloud2 样本（检查 fields x,y,z 和 width>0）
 ```
 
