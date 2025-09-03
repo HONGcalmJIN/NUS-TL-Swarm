@@ -9,11 +9,11 @@
 #### 系统与数据通路
 - 数据链路
   - TestCase Signpost（JSON）→ `tools/signpost_mission_runner.py` 生成路点目标（`PoseStamped`）→ 目标过滤偏移 `tools/goal_filter_offset.py`（`/move_base_simple/goal_raw` → `/move_base_simple/goal`）
-  - Ego-Planner：订阅 `goal`、`/drone_0/odom`、`/drone_0/cloud` → 输出 `/drone_0_planning/bspline`
+  - Ego-Planner：订阅 `goal`、`/drone_0_odom`、`/drone_0_cloud` → 输出 `/drone_0_planning/bspline`
   - 控制桥 `tools/controller_adapter_fixed.py`：订阅 `bspline` → 发布 `/agent001/trajectory/points` 给 pbtm 控制节点 → Unity 驱动
 - 关键话题
   - 目标输入：`/move_base_simple/goal_raw`（未过滤），`/move_base_simple/goal`（过滤/偏移后，给 Planner）
-  - 规划所需：`/drone_0/odom`（`nav_msgs/Odometry`，`frame=world`），`/drone_0/cloud`（`sensor_msgs/PointCloud2`，`frame=world`）
+  - 规划所需：`/drone_0_odom`（`nav_msgs/Odometry`，`frame=world`），`/drone_0_cloud`（`sensor_msgs/PointCloud2`，`frame=world`）
   - 规划输出：`/drone_0_planning/bspline`（`traj_utils/Bspline`）
   - 控制输出：`/agent001/trajectory/points`（`trajectory_msgs/JointTrajectory`）
   - 占据可视化：`/drone_0_grid/grid_map/occupancy_inflate`（宽高>0 才说明在更新）
@@ -29,8 +29,8 @@
   - `tools/signpost_mission_runner.py`：解析 EnvScenario JSON Signpost，生成 [pre, pass, post] 序列，按距离阈值推进，发布至 `--goal`
   - `tools/controller_adapter_fixed.py`：采样 `Bspline`，转 `JointTrajectory` 发布到 `/agent001/trajectory/points`（或 PoseStamped）
 - 适配层（延用阶段1/2）
-  - `pose_to_odom_adapter.py`：`/agent001/global/sim_nwu_pose` → `/drone_0/odom`，`frame=world`，SensorData QoS，20Hz 定时重发
-  - `cloud_relay.py`：`/agent001/lidar01` → `/drone_0/cloud`，必要时 `--pose` 进行 world 对齐或 `--assume_world`
+  - `pose_to_odom_adapter.py`：`/agent001/global/sim_nwu_pose` → `/drone_0_odom`，`frame=world`，SensorData QoS，20Hz 定时重发
+  - `cloud_relay.py`：`/agent001/lidar01` → `/drone_0_cloud`，必要时 `--pose` 进行 world 对齐或 `--assume_world`
 - 规划器启动方式（保持阶段2规范）
   - 仅用短名参数：`odometry_topic:=odom cloud_topic:=cloud odom_world:=odom`
 
@@ -80,12 +80,12 @@ ros2 topic pub -1 /agent001/trajectory/points trajectory_msgs/msg/JointTrajector
 3) 适配（位姿/点云）
 ```bash
 nohup python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
-  --in /agent001/global/sim_nwu_pose --out /drone_0/odom \
+  --in /agent001/global/sim_nwu_pose --out /drone_0_odom \
   --frame world --child base_link >/tmp/odom_adapt.log 2>&1 & echo $!
 
-# 若需点云中转（Unity 未直发 /drone_0/cloud）
+# 若需点云中转（Unity 未直发 /drone_0_cloud）
 nohup python3 /home/ctx/hifisim_ws/cloud_relay.py \
-  --in /agent001/lidar01 --out /drone_0/cloud --pose /agent001/global/sim_nwu_pose \
+  --in /agent001/lidar01 --out /drone_0_cloud --pose /agent001/global/sim_nwu_pose \
   >/tmp/cloud_relay.log 2>&1 & echo $!
 ```
 
@@ -110,7 +110,7 @@ nohup bash -lc 'ros2 launch ego_planner advanced_param.launch.py \
 nohup python3 /home/ctx/hifisim_ws/tools/goal_filter_offset.py \
   --node goal_filter_offset_v2 \
   --in /move_base_simple/goal_raw --out /move_base_simple/goal \
-  --odom /drone_0/odom --backoff 2.5 --z_min 1.8 --z_max 8.0 --min_interval 0.4 \
+  --odom /drone_0_odom --backoff 2.5 --z_min 1.8 --z_max 8.0 --min_interval 0.4 \
   >/tmp/goal_filter.log 2>&1 & echo $!
 ```
 
@@ -142,13 +142,13 @@ ros2 topic info -v /drone_0_planning/bspline | cat    # Pub=1(planner), Sub=1(co
 ros2 topic hz /drone_0_planning/bspline | head -n 20 | cat
 ros2 topic hz /agent001/trajectory/points | head -n 20 | cat  # 约 20Hz
 
-# RViz：Fixed Frame=world；显示 /drone_0/cloud、/drone_0/odom、/drone_0_planning/bspline、/drone_0_grid/grid_map/occupancy_inflate
+# RViz：Fixed Frame=world；显示 /drone_0_cloud、/drone_0_odom、/drone_0_planning/bspline、/drone_0_grid/grid_map/occupancy_inflate
 ```
 
 #### 调试记录
 - 目标过滤链路未接通
   - Observation：`/move_base_simple/goal` 无订阅或订阅数≠1
-  - Diagnosis：过滤节点未启动或参数错误（`--in/--out` 混用；`--odom` 话题名需为 `/drone_0/odom`）
+  - Diagnosis：过滤节点未启动或参数错误（`--in/--out` 混用；`--odom` 话题名需为 `/drone_0_odom`）
   - Change：修正为上面的标准启动与话题名；确认计数 Pub=1/Sub=1
   - Result：Planner 能持续收到过滤后的目标
 - `bspline` 出现但无人机不动
@@ -173,7 +173,7 @@ ros2 topic hz /agent001/trajectory/points | head -n 20 | cat  # 约 20Hz
 - RViz 可见占据膨胀与轨迹；路径不穿越明显障碍，Unity 中机体按轨迹行进
 
 #### 已知问题
-- `goal_filter_offset.py` 的 `--odom` 默认值为 `/drone_0_odom`（下划线），需显式传入 `/drone_0/odom`
+- `goal_filter_offset.py` 的 `--odom` 默认值为 `/drone_0_odom`（下划线），需显式传入 `/drone_0_odom`
 - 场景差异较大时需适配 `resolution_`、`obstacles_inflation_`、`local_update_range_*`；否则易出现“地图空/过稀/过密”
 - `signpost_mission_runner.py` 的坐标系转换以当前 Env1 假设为准，切换场景需复核（已通过参数 `--filter/--limit` 控制样本）
 - 8.19总结 无人机会停留在第一个signpost距离2m处，目前bug在于，路点的设置不合理，signpost作为附着在建筑物墙壁上的点，不可以作为waypoint，需要另外设计路点，egoplanner输入一个落点在障碍物的目标点会kill，直接撞击自杀。目前的想法是：
