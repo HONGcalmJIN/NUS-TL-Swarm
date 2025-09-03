@@ -1,0 +1,6 @@
+geometry_msgs/Point range
+float32 resolution
+string savepath
+string filename
+---
+bool success

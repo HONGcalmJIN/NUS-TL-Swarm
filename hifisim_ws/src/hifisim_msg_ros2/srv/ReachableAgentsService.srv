@@ -1,0 +1,5 @@
+int32 sent_agent
+---
+bool success
+int32[] reachable_agents
+float32[] prob_success

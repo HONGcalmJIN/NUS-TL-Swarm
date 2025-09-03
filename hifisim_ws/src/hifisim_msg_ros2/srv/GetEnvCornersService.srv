@@ -1,0 +1,4 @@
+uint16 env_id
+---
+bool success
+geometry_msgs/Point[] boundary_corner

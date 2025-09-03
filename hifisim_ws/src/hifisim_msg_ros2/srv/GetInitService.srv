@@ -1,0 +1,8 @@
+float32 radius
+float32 range
+float32 flightheight
+float32 boundary
+---
+bool success
+geometry_msgs/Point start
+geometry_msgs/Point goal

@@ -1,0 +1,17 @@
+# Request
+int32 testcase_id
+string description
+int32 env_id
+int32 env_scenario_id
+bool radio_comm_on
+int32 radio_comm_range
+bool performance_on
+bool sim_detection_on
+int32 sim_detection_range
+int32 sim_detection_frequency
+# Define an individual agent group
+AgentGroup[] agent_groups
+---
+# Response
+bool success
+AgentFeasiblePose[] agent_feasible_pose

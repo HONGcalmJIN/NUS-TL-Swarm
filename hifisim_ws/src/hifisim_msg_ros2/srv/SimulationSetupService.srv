@@ -1,0 +1,8 @@
+string service_msg  # service_msg: 'sim_setup', 'sim_started' or 'request_start_sim'
+                    # 'sim_setup' from Performance or RadioComm
+                    # 'sim_started' from GCS
+                    # 'request_start_sim' from Performance or RadioComm
+string requester    # 'GCS', 'RadioComm' or 'Performance'
+---
+bool success
+int32 testcase_id   # set testcase_id when success = True

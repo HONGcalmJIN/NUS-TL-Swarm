@@ -1,0 +1,7 @@
+# Request
+int32 testcase_id
+---
+# Response
+bool success
+int32[] agent_id
+geometry_msgs/Pose[] agent_feasible_pose

@@ -1,0 +1,4 @@
+# Empty service request
+---
+bool success
+int32 total_agents

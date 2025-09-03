@@ -1,0 +1,4 @@
+# Empty service request
+---
+bool success
+BoundingBox[] box_infos

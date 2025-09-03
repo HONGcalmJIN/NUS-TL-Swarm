@@ -1,0 +1,5 @@
+# Empty service request
+---
+bool success
+uint16[] env_ids
+uint16[] scenario_count  # of the corresponding env_id

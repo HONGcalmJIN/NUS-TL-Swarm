@@ -1,0 +1,12 @@
+uint16 env_id
+uint16 scenario_id
+uint16 number_uav
+uint16[] uav_ids
+geometry_msgs/Pose[] initial_poses
+bool down_camera_enabled
+bool fish_eye_enabled
+bool eagle_eye_enabled
+bool pinhole_enabled
+---
+bool success
+geometry_msgs/Pose[] feasible_poses
