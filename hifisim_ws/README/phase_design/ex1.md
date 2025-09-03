@@ -46,8 +46,8 @@
 **适配后话题抽样**
 
 ```bash
-ros2 topic echo --once /drone_0/odom     # 有 Odometry 样本
-ros2 topic echo --once /drone_0/cloud    # 有 PointCloud2 样本（检查 fields x,y,z 和 width>0）
+ros2 topic echo --once      # 有 Odometry 样本
+ros2 topic echo --once /drone_0_cloud    # 有 PointCloud2 样本（检查 fields x,y,z 和 width>0）
 ```
 
 ### 2.3 规划器启动（我使用了短名参数用于终端测试，没写脚本，后续同理）
@@ -64,12 +64,12 @@ ros2 launch ego_planner advanced_param.launch.py \
 ```bash
 ros2 node info /drone_0_ego_planner_node | sed -n '1,120p'
 # 期望看到订阅：
-#   ... /drone_0/odom : nav_msgs/msg/Odometry
-#   ... /drone_0/cloud: sensor_msgs/msg/PointCloud2
+#   ...  : nav_msgs/msg/Odometry
+#   ... /drone_0_cloud: sensor_msgs/msg/PointCloud2
 ```
 
 > 注：传入**短名参数**（`odom/cloud/odom`）后，包内会在命名空间 `drone_0` 下解析为
-> `/drone_0/odom`、`/drone_0/cloud`、`/drone_0/odom`，避免出现 `/drone_0_/drone_0_*` 的重复前缀问题。
+> ``、`/drone_0_cloud`、`/drone_0_odom`，避免出现 `/drone_0_/drone_0_*` 的重复前缀问题。
 
 ---
 
@@ -85,17 +85,17 @@ ros2 node info /drone_0_ego_planner_node | sed -n '1,120p'
 * **位姿 → 里程计**：`pose_to_odom_adapter.py`
 
   * 输入：`/agent001/global/sim_nwu_pose`
-  * 输出：`/drone_0/odom`（`nav_msgs/Odometry`，`header.frame_id` 建议 用参数`world`后续rviz可视化点云也是world坐标系下）
+  * 输出：`/drone_0_odom`（`nav_msgs/Odometry`，`header.frame_id` 建议 用参数`world`后续rviz可视化点云也是world坐标系下）
 * **点云中转**：`cloud_relay.py`
 
   * 输入：`/agent001/lidar01`
-  * 输出：`/drone_0/cloud`（`PointCloud2`，`header.frame_id` 与 `odom` 同一世界系，例如 `world`）
+  * 输出：`/drone_0_cloud`（`PointCloud2`，`header.frame_id` 与 `odom` 同一世界系，例如 `world`）
   * 可选：`--pose /agent001/global/sim_nwu_pose` 用于**时间与坐标对齐**
 
 ### 3.3 消费端（Ego Planner）
 
 * 命名空间：`drone_0`
-* 订阅：`/drone_0/odom`、`/drone_0/cloud`（通过短名参数映射）
+* 订阅：`/drone_0_odom`、`/drone_0_cloud`（通过短名参数映射）
 
 ### 3.4 QoS 与坐标帧
 
@@ -112,7 +112,7 @@ ros2 node info /drone_0_ego_planner_node | sed -n '1,120p'
 ```bash
 python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
   --in /agent001/global/sim_nwu_pose \
-  --out /drone_0/odom
+  --out /drone_0_odom
 ```
 
 **终端 B：点云中转**
@@ -120,7 +120,7 @@ python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
 ```bash
 python3 /home/ctx/hifisim_ws/cloud_relay.py \
   --in /agent001/lidar01 \
-  --out /drone_0/cloud \
+  --out /drone_0_cloud \
   --pose /agent001/global/sim_nwu_pose
 ```
 
@@ -136,8 +136,8 @@ ros2 launch ego_planner advanced_param.launch.py \
 ## 5. RViz 最小配置
 
 * **Fixed Frame** 设为 `world`（或与消息 `header.frame_id` 相同）
-* 添加 **PointCloud2**：Topic 选 `/drone_0/cloud`；`Reliability = Best Effort`
-* 添加 **Odometry**：Topic 选 `/drone_0/odom`
+* 添加 **PointCloud2**：Topic 选 `/drone_0_cloud`；`Reliability = Best Effort`
+* 添加 **Odometry**：Topic 选 `/drone_0_odom`
 
 > 若「messages received 但看不到点」：
 > ① 检查点云 `width/height > 0`；
