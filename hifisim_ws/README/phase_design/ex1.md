@@ -110,7 +110,7 @@ ros2 node info /drone_0_ego_planner_node | sed -n '1,120p'
 **终端 A：位姿 → 里程计**
 
 ```bash
-python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
+python3 /home/chentx/hifisim_ws/pose_to_odom_adapter.py \
   --in /agent001/global/sim_nwu_pose \
   --out /drone_0_odom
 ```
@@ -118,7 +118,7 @@ python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
 **终端 B：点云中转**
 
 ```bash
-python3 /home/ctx/hifisim_ws/cloud_relay.py \
+python3 /home/chentx/hifisim_ws/cloud_relay.py \
   --in /agent001/lidar01 \
   --out /drone_0_cloud \
   --pose /agent001/global/sim_nwu_pose
