@@ -52,7 +52,7 @@
 **终端 A：位姿 → 里程计**
 
 ```bash
-python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
+python3 /home/chentx/hifisim_ws/pose_to_odom_adapter.py \
   --in /agent001/global/sim_nwu_pose \
   --out /drone_0/odom \
   --frame world --child base_link
@@ -61,7 +61,7 @@ python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
 **终端 B：点云中转（如 Unity 未直发 /drone\_0/cloud）**
 
 ```bash
-python3 /home/ctx/hifisim_ws/cloud_relay.py \
+python3 /home/chentx/hifisim_ws/cloud_relay.py \
   --in /agent001/lidar01 \
   --out /drone_0/cloud \
   --pose /agent001/global/sim_nwu_pose
