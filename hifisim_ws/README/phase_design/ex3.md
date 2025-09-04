@@ -19,7 +19,7 @@
   - 占据可视化：`/drone_0_grid/grid_map/occupancy_inflate`（宽高>0 才说明在更新）
 
 #### 环境与版本
-- 工作区：`/home/ctx/hifisim_ws`（分支 `main`）
+- 工作区：`/home/chentx/hifisim_ws`（分支 `main`）
 - Unity/HiFiSim：`/agent001/global/sim_nwu_pose`（PoseStamped真值）、`/agent001/lidar01`（PointCloud2）
 - ROS 2：终端均可运行 `ros2` CLI；RViz 已可用
 
@@ -48,8 +48,8 @@ pkill -f pose_to_odom_adapter.py || true
 
 1) 启动unity和single Endpoint
 ```Shell
-chmod +x /home/ctx/hifisim_ws/sh/run_unity_stack.sh
-/home/ctx/hifisim_ws/sh/run_unity_stack.sh
+chmod +x /home/chentx/hifisim_ws/sh/run_unity_stack.sh
+/home/chentx/hifisim_ws/sh/run_unity_stack.sh
 ```
 
 
@@ -79,12 +79,12 @@ ros2 topic pub -1 /agent001/trajectory/points trajectory_msgs/msg/JointTrajector
 
 3) 适配（位姿/点云）
 ```bash
-nohup python3 /home/ctx/hifisim_ws/pose_to_odom_adapter.py \
+nohup python3 /home/chentx/hifisim_ws/pose_to_odom_adapter.py \
   --in /agent001/global/sim_nwu_pose --out /drone_0_odom \
   --frame world --child base_link >/tmp/odom_adapt.log 2>&1 & echo $!
 
 # 若需点云中转（Unity 未直发 /drone_0_cloud）
-nohup python3 /home/ctx/hifisim_ws/cloud_relay.py \
+nohup python3 /home/chentx/hifisim_ws/cloud_relay.py \
   --in /agent001/lidar01 --out /drone_0_cloud --pose /agent001/global/sim_nwu_pose \
   >/tmp/cloud_relay.log 2>&1 & echo $!
 ```
@@ -107,7 +107,7 @@ nohup bash -lc 'ros2 launch ego_planner advanced_param.launch.py \
 
 5) 目标过滤/偏移（隔离 raw/filtered）
 ```bash
-nohup python3 /home/ctx/hifisim_ws/tools/goal_filter_offset.py \
+nohup python3 /home/chentx/hifisim_ws/tools/goal_filter_offset.py \
   --node goal_filter_offset_v2 \
   --in /move_base_simple/goal_raw --out /move_base_simple/goal \
   --odom /drone_0_odom --backoff 2.5 --z_min 1.8 --z_max 8.0 --min_interval 0.4 \
@@ -116,8 +116,8 @@ nohup python3 /home/ctx/hifisim_ws/tools/goal_filter_offset.py \
 
 6) 任务（从 Signpost 发布序列目标）
 ```bash
-nohup python3 /home/ctx/hifisim_ws/tools/signpost_mission_runner.py \
-  --json /home/ctx/Unity/build/hifi_simulator_unity_Data/StreamingAssets/AppData/EnvScenarios/Env1Scenario1.json \
+nohup python3 /home/chentx/hifisim_ws/tools/signpost_mission_runner.py \
+  --json /home/chentx/Unity/build/hifi_simulator_unity_Data/StreamingAssets/AppData/EnvScenarios/Env1Scenario1.json \
   --pose /agent001/global/sim_nwu_pose --goal /move_base_simple/goal_raw \
   --alt 2.0 --pre 2.0 --post 2.0 --reach 2.5 --filter Signpost_ --limit 3 \
   >/tmp/signpost_runner.log 2>&1 & echo $!
@@ -125,7 +125,7 @@ nohup python3 /home/ctx/hifisim_ws/tools/signpost_mission_runner.py \
 
 7) 控制桥（Bspline → JointTrajectory）
 ```bash
-nohup python3 /home/ctx/hifisim_ws/tools/controller_adapter_fixed.py \
+nohup python3 /home/chentx/hifisim_ws/tools/controller_adapter_fixed.py \
   --agent_id 1 --hz 20 --horizon 4.0 --mission_code 3 \
   --z_mode clamp --z_min 1.8 --z_max 8.0 --drive_mode jt \
   >/tmp/ctrl_1.log 2>&1 & echo $!
